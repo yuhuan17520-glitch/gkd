@@ -141,8 +141,17 @@ class ShizukuContext(
 
     @WorkerThread
     fun tap(x: Float, y: Float, duration: Long = 0): Boolean {
-        return serviceWrapper?.tap(x, y, duration) ?: (inputManager?.tap(x, y, duration) != null)
+    return try {
+        Runtime.getRuntime().exec(
+            arrayOf("su", "-c", "input tap ${x.toInt()} ${y.toInt()}")
+        )
+        true
+    } catch (e: Exception) {
+        // fallback 走原来的 Shizuku
+        serviceWrapper?.tap(x, y, duration)
+            ?: (inputManager?.tap(x, y, duration) != null)
     }
+}
 
     fun topCpn(): ComponentName? {
         return (activityTaskManager?.getTasks()
